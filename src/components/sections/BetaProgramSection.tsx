@@ -9,7 +9,7 @@ const benefits = [
 
 export default function BetaProgramSection() {
   return (
-    <section className="bg-primary-50 py-16 lg:py-20">
+    <section className="bg-primary-50 py-12 md:py-16 lg:py-20">
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <SectionHeader
@@ -38,7 +38,7 @@ export default function BetaProgramSection() {
                 </li>
               ))}
             </ul>
-            <div className="mt-8 flex justify-center">
+            <div className="mt-6 sm:mt-8">
               <Button href="#waitlist">Join the Beta Waitlist</Button>
             </div>
           </Card>
