@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Container } from '@/components/ui';
 import { typography } from '@/theme/typography';
 
@@ -10,14 +11,12 @@ export default function SiteFooter() {
             &copy; {new Date().getFullYear()} UFIT Training. All rights reserved.
           </p>
           <nav>
-            <a
-              href="https://ufitprivacy.netlify.app/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/privacy-policy"
               className="font-body text-paragraph-02 text-gray-600 hover:text-primary-600"
             >
               Privacy Policy
-            </a>
+            </Link>
           </nav>
         </div>
       </Container>
