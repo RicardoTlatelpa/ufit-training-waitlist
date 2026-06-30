@@ -11,7 +11,7 @@ const audiences = [
 
 export default function WhyUfitSection() {
   return (
-    <section className="bg-gray-50 py-16 lg:py-20">
+    <section className="bg-gray-50 py-12 md:py-16 lg:py-20">
       <Container>
         <SectionHeader
           title="Why UFIT?"
@@ -19,11 +19,11 @@ export default function WhyUfitSection() {
         />
         <div className="mx-auto max-w-2xl">
           <p className={typography.overline}>Perfect for</p>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 sm:gap-3">
             {audiences.map((item) => (
               <li
                 key={item}
-                className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3"
+                className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5 sm:rounded-lg sm:py-3"
               >
                 <span className="h-2 w-2 shrink-0 rounded-full bg-primary-500" />
                 <span className={typography.body}>{item}</span>
