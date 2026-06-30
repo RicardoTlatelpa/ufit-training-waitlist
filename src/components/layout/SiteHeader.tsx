@@ -21,7 +21,7 @@ export default function SiteHeader() {
         <Button
           href="#waitlist"
           variant="primary"
-          className="shrink-0 px-4 text-[14px] sm:px-5 sm:text-paragraph-01"
+          className="h-9 min-h-0 w-auto shrink-0 self-center px-4 py-0 text-[14px] leading-none sm:min-h-[44px] sm:h-auto sm:px-5 sm:py-3 sm:text-paragraph-01 sm:leading-paragraph-01"
         >
           <span className="sm:hidden">Join</span>
           <span className="hidden sm:inline">Join the Beta Waitlist</span>
