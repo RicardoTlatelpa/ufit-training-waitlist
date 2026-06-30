@@ -1,24 +1,30 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Container, Button } from '@/components/ui';
 
 export default function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
-      <Container className="flex min-h-16 items-center justify-between">
-        <a href="#" className="flex items-center gap-2.5">
+    <header className="sticky top-0 z-50 border-b border-gray-100/80 bg-white/90 backdrop-blur-md supports-[padding:env(safe-area-inset-top)]:pt-[env(safe-area-inset-top)]">
+      <Container className="flex min-h-[3.75rem] items-center justify-between gap-3 sm:min-h-16">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
           <Image
             src="/images/icon.png"
             alt="UFIT Training"
             width={36}
             height={36}
-            className="rounded-lg"
+            className="shrink-0 rounded-lg"
           />
-          <span className="font-heading text-heading-04 font-bold text-primary-800">
+          <span className="truncate font-heading text-[17px] font-bold text-primary-800 sm:text-heading-04">
             UFIT Training
           </span>
-        </a>
-        <Button href="#waitlist" variant="primary" className="hidden sm:inline-flex">
-          Join the Beta Waitlist
+        </Link>
+        <Button
+          href="#waitlist"
+          variant="primary"
+          className="shrink-0 px-4 text-[14px] sm:px-5 sm:text-paragraph-01"
+        >
+          <span className="sm:hidden">Join</span>
+          <span className="hidden sm:inline">Join the Beta Waitlist</span>
         </Button>
       </Container>
     </header>
