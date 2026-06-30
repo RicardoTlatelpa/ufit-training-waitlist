@@ -9,25 +9,14 @@ export default function SiteFooter() {
           <p className={typography.caption}>
             &copy; {new Date().getFullYear()} UFIT Training. All rights reserved.
           </p>
-          <nav className="flex flex-wrap items-center justify-center gap-6">
+          <nav>
             <a
-              href="#"
+              href="https://ufitprivacy.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="font-body text-paragraph-02 text-gray-600 hover:text-primary-600"
             >
               Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="font-body text-paragraph-02 text-gray-600 hover:text-primary-600"
-            >
-              Contact
-            </a>
-            <a
-              href="#"
-              className="font-body text-paragraph-02 text-gray-600 hover:text-primary-600"
-              aria-label="UFIT on social media"
-            >
-              Social
             </a>
           </nav>
         </div>

@@ -11,13 +11,11 @@ import { cn } from '@/lib/cn';
 type WaitlistFormProps = {
   className?: string;
   compact?: boolean;
-  variant?: 'default' | 'dark';
 };
 
 export default function WaitlistForm({
   className,
   compact = false,
-  variant = 'default',
 }: WaitlistFormProps) {
   const emailId = useId();
   const [submitted, setSubmitted] = useState(false);
@@ -79,23 +77,14 @@ export default function WaitlistForm({
           autoComplete="email"
           placeholder="you@example.com"
           className={cn(
-            'w-full min-h-[44px] rounded-md border px-4 py-3 font-body text-paragraph-01 placeholder:text-gray-500',
-            'focus:outline-none focus:ring-2',
-            variant === 'dark'
-              ? 'border-primary-600 bg-white text-gray-900 focus:border-white focus:ring-primary-400'
-              : 'border-gray-300 bg-white text-gray-900 focus:border-primary-500 focus:ring-primary-200',
+            'w-full min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-3 font-body text-paragraph-01 text-gray-900 placeholder:text-gray-500',
+            'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200',
             errors.email && 'border-error-500 focus:border-error-500 focus:ring-error-100',
           )}
           {...register('email')}
         />
         {errors.email ? (
-          <p
-            className={cn(
-              'mt-1',
-              typography.caption,
-              variant === 'dark' ? 'text-error-200' : 'text-error-500',
-            )}
-          >
+          <p className={cn('mt-1', typography.caption, 'text-error-500')}>
             {errors.email.message}
           </p>
         ) : null}

@@ -6,7 +6,6 @@ import HowItWorksSection from '@/components/sections/HowItWorksSection';
 import BetaProgramSection from '@/components/sections/BetaProgramSection';
 import AboutSection from '@/components/sections/AboutSection';
 import FaqSection from '@/components/sections/FaqSection';
-import FinalCtaSection from '@/components/sections/FinalCtaSection';
 
 export default function Home() {
   return (
@@ -19,7 +18,6 @@ export default function Home() {
       <BetaProgramSection />
       <AboutSection />
       <FaqSection />
-      <FinalCtaSection />
     </>
   );
 }

@@ -11,11 +11,11 @@ export default function ProblemSection() {
   return (
     <section className="bg-gray-50 py-16 lg:py-20">
       <Container>
-        <SectionHeader
-          title="Stop Guessing What To Do Next"
-          subtitle="Most workout apps record what you've already done. UFIT helps you know what comes next."
-        />
-        <div className="mx-auto max-w-2xl">
+        <div className="max-w-2xl">
+          <SectionHeader
+            title="Stop Guessing What To Do Next"
+            subtitle="Most workout apps record what you've already done. UFIT helps you know what comes next."
+          />
           <ul className="space-y-4">
             {painPoints.map((point) => (
               <li key={point} className="flex items-center gap-3">

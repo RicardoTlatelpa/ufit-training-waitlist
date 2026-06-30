@@ -4,6 +4,7 @@ import { typography } from '@/theme/typography';
 const audiences = [
   'Strength training',
   'Powerlifting',
+  'Bodybuilding',
   'Boxing support',
   'General fitness',
 ];
