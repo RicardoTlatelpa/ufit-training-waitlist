@@ -39,7 +39,7 @@ export default function Button({
 }: ButtonProps) {
   const isDisabled = disabled || loading;
   const classes = cn(
-    'inline-flex min-h-[44px] items-center justify-center rounded-md px-4 py-3 font-body text-paragraph-01 font-bold leading-paragraph-01 transition-colors',
+    'inline-flex min-h-[48px] w-full items-center justify-center rounded-lg px-5 py-3.5 font-body text-paragraph-01 font-bold leading-paragraph-01 transition-colors sm:min-h-[44px] sm:w-auto sm:rounded-md sm:px-4',
     isDisabled ? disabledClasses[variant] : variantClasses[variant],
     className,
   );
