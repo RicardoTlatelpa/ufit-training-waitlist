@@ -5,6 +5,9 @@ import SiteFooter from '@/components/layout/SiteFooter';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? process.env.URL ?? 'http://localhost:3000',
+  ),
   title: 'UFIT Training — Train Smarter. Progress Every Workout.',
   description:
     'Build your own strength program, track every workout, and let UFIT automatically manage your progression so you always know what to lift next.',
