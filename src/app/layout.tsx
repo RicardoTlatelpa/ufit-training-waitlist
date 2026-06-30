@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { fontVariables } from '@/theme/fonts';
 import SiteHeader from '@/components/layout/SiteHeader';
 import SiteFooter from '@/components/layout/SiteFooter';
@@ -21,6 +21,12 @@ export const metadata: Metadata = {
     type: 'website',
     images: [{ url: '/images/icon.png', width: 512, height: 512, alt: 'UFIT Training' }],
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
