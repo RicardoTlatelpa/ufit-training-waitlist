@@ -10,16 +10,17 @@ import { cn } from '@/lib/cn';
 
 type WaitlistFormProps = {
   className?: string;
-  compact?: boolean;
 };
+
+type SubmitStatus = 'verification_sent' | 'already_verified';
 
 export default function WaitlistForm({
   className,
-  compact = false,
 }: WaitlistFormProps) {
   const emailId = useId();
-  const [submitted, setSubmitted] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -31,15 +32,57 @@ export default function WaitlistForm({
     defaultValues: { email: '' },
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: WaitlistFormValues) => {
     setSubmitting(true);
-    // TODO: wire to waitlist API
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setSubmitted(true);
-    setSubmitting(false);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email }),
+      });
+
+      const payload = (await response.json()) as {
+        status?: SubmitStatus;
+        message?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setSubmitError(payload.error ?? 'Unable to submit your signup. Please try again.');
+        return;
+      }
+
+      setSubmitStatus(payload.status ?? 'verification_sent');
+    } catch {
+      setSubmitError('Unable to submit your signup. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  if (submitted) {
+  if (submitStatus === 'verification_sent') {
+    return (
+      <div
+        className={cn(
+          'rounded-xl border border-primary-200 bg-primary-50 px-5 py-4',
+          className,
+        )}
+        role="status"
+      >
+        <p className="font-heading text-heading-04 font-semibold text-primary-800">
+          Check your email
+        </p>
+        <p className={cn('mt-1', typography.bodySecondary)}>
+          We sent you a confirmation link. Click it to verify your email and join the beta
+          waitlist.
+        </p>
+      </div>
+    );
+  }
+
+  if (submitStatus === 'already_verified') {
     return (
       <div
         className={cn(
@@ -49,10 +92,10 @@ export default function WaitlistForm({
         role="status"
       >
         <p className="font-heading text-heading-04 font-semibold text-success-700">
-          You&apos;re on the list!
+          You&apos;re already confirmed
         </p>
         <p className={cn('mt-1', typography.bodySecondary)}>
-          We&apos;ll reach out when beta spots open up.
+          This email is already on the verified beta waitlist.
         </p>
       </div>
     );
@@ -61,13 +104,10 @@ export default function WaitlistForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={cn(
-        compact ? 'flex flex-col gap-3 sm:flex-row sm:items-start' : 'space-y-3',
-        className,
-      )}
+      className={cn('space-y-3', className)}
       noValidate
     >
-      <div className={cn(compact && 'flex-1')}>
+      <div>
         <label htmlFor={emailId} className="sr-only">
           Email address
         </label>
@@ -77,7 +117,7 @@ export default function WaitlistForm({
           autoComplete="email"
           placeholder="you@example.com"
           className={cn(
-            'w-full min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-3 font-body text-paragraph-01 text-gray-900 placeholder:text-gray-500',
+            'w-full min-h-[48px] rounded-lg border border-gray-300 bg-white px-4 py-3.5 font-body text-base text-gray-900 placeholder:text-gray-500 sm:min-h-[44px] sm:rounded-md sm:py-3 sm:text-paragraph-01',
             'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200',
             errors.email && 'border-error-500 focus:border-error-500 focus:ring-error-100',
           )}
@@ -88,12 +128,14 @@ export default function WaitlistForm({
             {errors.email.message}
           </p>
         ) : null}
+        {submitError ? (
+          <p className={cn('mt-1', typography.caption, 'text-error-500')}>{submitError}</p>
+        ) : null}
       </div>
       <Button
         type="submit"
         disabled={!isValid}
         loading={submitting}
-        className={cn(compact && 'w-full sm:w-auto sm:shrink-0')}
       >
         Join the Beta Waitlist
       </Button>
