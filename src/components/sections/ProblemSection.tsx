@@ -9,7 +9,7 @@ const painPoints = [
 
 export default function ProblemSection() {
   return (
-    <section className="bg-gray-50 py-16 lg:py-20">
+    <section className="bg-gray-50 py-12 md:py-16 lg:py-20">
       <Container>
         <div className="max-w-2xl">
           <SectionHeader
@@ -35,7 +35,7 @@ export default function ProblemSection() {
               </li>
             ))}
           </ul>
-          <p className="mt-8 font-heading text-heading-03 font-bold text-primary-800">
+          <p className="mt-6 font-heading text-[1.35rem] font-bold leading-tight text-primary-800 sm:mt-8 sm:text-heading-03 sm:leading-heading-03">
             Simply train.
           </p>
         </div>
