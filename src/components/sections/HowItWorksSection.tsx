@@ -10,12 +10,15 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section className="bg-white py-16 lg:py-20">
+    <section className="bg-white py-12 md:py-16 lg:py-20">
       <Container>
         <SectionHeader title="How It Works" align="center" />
-        <ol className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
+        <ol className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2 sm:gap-6">
           {steps.map((step) => (
-            <li key={step.number} className="flex gap-4">
+            <li
+              key={step.number}
+              className="flex gap-4 rounded-xl border border-gray-100 bg-gray-50/80 p-4 sm:border-0 sm:bg-transparent sm:p-0"
+            >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-500 font-heading text-heading-04 font-bold text-white">
                 {step.number}
               </span>
