@@ -9,8 +9,40 @@ export type SubscribeResult =
   | { status: 'verification_sent' }
   | { status: 'already_verified' };
 
+export type WaitlistEmailStatus =
+  | 'available'
+  | 'already_verified'
+  | 'pending_verification';
+
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
+}
+
+export async function getWaitlistEmailStatus(email: string): Promise<WaitlistEmailStatus> {
+  const normalizedEmail = normalizeEmail(email);
+  const supabase = getSupabaseAdmin();
+
+  const { data: existingData, error: fetchError } = await supabase
+    .from('waitlist_signups')
+    .select('verified_at')
+    .eq('email', normalizedEmail)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  const existing = existingData as Pick<WaitlistSignupRow, 'verified_at'> | null;
+
+  if (!existing) {
+    return 'available';
+  }
+
+  if (existing.verified_at) {
+    return 'already_verified';
+  }
+
+  return 'pending_verification';
 }
 
 function createVerificationToken(): string {
