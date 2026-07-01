@@ -3,7 +3,7 @@
 import { useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { waitlistSchema, type WaitlistFormValues } from '@/lib/validation';
+import { waitlistFormSchema, type WaitlistFormValues } from '@/lib/validation';
 import { typography } from '@/theme/typography';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
@@ -27,8 +27,9 @@ export default function WaitlistForm({
     handleSubmit,
     formState: { errors, isValid },
   } = useForm<WaitlistFormValues>({
-    resolver: zodResolver(waitlistSchema),
-    mode: 'onChange',
+    resolver: zodResolver(waitlistFormSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: { email: '' },
   });
 
