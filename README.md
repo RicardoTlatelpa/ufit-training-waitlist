@@ -105,13 +105,14 @@ The waitlist uses **email verification** before a signup is confirmed:
 
 ### Setup
 
-#### 1. Create the Supabase table
+#### 1. Create the Supabase tables
 
-In your Supabase project, open **SQL Editor** and run:
+In your Supabase project, open **SQL Editor** and run, in order:
 
-[`supabase/migrations/001_waitlist_signups.sql`](./supabase/migrations/001_waitlist_signups.sql)
+1. [`supabase/migrations/001_waitlist_signups.sql`](./supabase/migrations/001_waitlist_signups.sql)
+2. [`supabase/migrations/002_waitlist_abuse_protection.sql`](./supabase/migrations/002_waitlist_abuse_protection.sql)
 
-This creates the `waitlist_signups` table with RLS enabled (API uses the service role key).
+This creates the `waitlist_signups` table (with RLS) and abuse-protection columns/tables for rate limiting and verification resend cooldowns.
 
 #### 2. Configure email (pick one)
 
@@ -161,8 +162,32 @@ Copy [`.env.example`](./.env.example) to `.env.local` for local dev, and add the
 | `SMTP_USER` + `SMTP_PASS` | Gmail app password (Option A) |
 | `RESEND_API_KEY` | Resend API key (Option B) |
 | `WAITLIST_FROM_EMAIL` | Display name + sender address |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (public) |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key (server only) |
 
 Redeploy after adding env vars on Netlify.
+
+### Spam and abuse protection
+
+The waitlist uses layered defenses:
+
+| Layer | What it does |
+|-------|----------------|
+| **Cloudflare Turnstile** | Bot CAPTCHA on signup (required in production) |
+| **Honeypot field** | Silently discards naive bots that fill hidden fields |
+| **Rate limits** | 5 signups/IP/hour, 3 signups/email/hour, 30 email checks/IP/hour (stored in Supabase) |
+| **Disposable email block** | Rejects known throwaway email domains |
+| **Verification resend cooldown** | Won't resend confirmation emails more than once per 15 minutes |
+| **Double opt-in** | Only verified signups count |
+
+**Turnstile setup:**
+
+1. [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Turnstile** → **Add site**
+2. Hostnames: your production domain (e.g. `ufittraining.com`) and `localhost`
+3. Add `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` to Netlify env vars
+4. Redeploy
+
+In local dev without Turnstile keys, verification is skipped automatically (do not deploy to production without keys).
 
 ### Sending future beta emails
 
@@ -177,6 +202,7 @@ Verified signups are stored in Supabase (`verified_at IS NOT NULL`). You can:
 | Route | Purpose |
 |-------|---------|
 | `POST /api/waitlist` | Start signup, send verification email |
+| `GET /api/waitlist/check?email=...` | Check email availability (rate limited) |
 | `GET /api/waitlist/verify?token=...` | Confirm email |
 | `/waitlist/confirmed` | Success page after verification |
 | `/waitlist/verify-error` | Invalid/expired link page |
