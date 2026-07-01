@@ -6,6 +6,7 @@ export type WaitlistSignupRow = {
   verified_at: string | null;
   verification_token: string | null;
   verification_token_expires_at: string | null;
+  last_verification_sent_at: string | null;
   created_at: string;
   updated_at: string;
 };
