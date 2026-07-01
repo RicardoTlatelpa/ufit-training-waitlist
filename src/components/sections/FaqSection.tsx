@@ -11,8 +11,13 @@ const faqs = [
     answer: 'Yes.',
   },
   {
+    question: 'Where can I get the app?',
+    answer:
+      'UFIT is currently in beta on Apple TestFlight. After testing, the app will be released on the App Store.',
+  },
+  {
     question: 'When will invites go out?',
-    answer: 'As new testing spots become available.',
+    answer: 'You will receive an email with details on how to install the beta.',
   },
 ];
 
