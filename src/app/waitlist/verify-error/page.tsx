@@ -4,7 +4,7 @@ import { Card, Container } from '@/components/ui';
 import { typography } from '@/theme/typography';
 
 export const metadata: Metadata = {
-  title: 'Verification Error — UFIT Training',
+  title: 'Verification Error | UFIT Training',
   description: 'There was a problem confirming your UFIT Training waitlist signup.',
 };
 
