@@ -2,10 +2,15 @@ import { Container, SectionHeader } from '@/components/ui';
 import { typography } from '@/theme/typography';
 
 const steps = [
-  { number: '1', title: 'Build your program.', description: 'Design training that matches how you actually lift.' },
+  {
+    number: '1',
+    title: 'Choose or build your program.',
+    description:
+      'Browse the program library to pick a plan based on your training goals and level, or build your own from scratch.',
+  },
   { number: '2', title: 'Complete your workout.', description: 'Follow your session with everything laid out for you.' },
   { number: '3', title: 'Track your results.', description: 'Log sets, reps, and weights as you go.' },
-  { number: '4', title: 'UFIT updates your next session.', description: 'Progression handled automatically—always know what comes next.' },
+  { number: '4', title: 'UFIT updates your next session.', description: 'Progression handled automatically, so you always know what comes next.' },
 ];
 
 export default function HowItWorksSection() {
