@@ -1,5 +1,6 @@
 import { Container } from '@/components/ui';
 import { typography } from '@/theme/typography';
+import TestFlightLogo from '@/components/TestFlightLogo';
 import WaitlistForm from '@/components/WaitlistForm';
 import PhoneMockup from '@/components/PhoneMockup';
 
@@ -17,7 +18,7 @@ export default function HeroSection() {
               Train Smarter. Progress Every Workout.
             </h1>
             <p className={`mt-4 max-w-xl text-[15px] leading-[1.55] sm:mt-5 sm:text-paragraph-01 sm:leading-paragraph-01 lg:mt-6 ${typography.body}`}>
-              Build your own strength program, track every workout, and let UFIT
+              Build your own training program, track every workout, and let UFIT
               automatically manage your progression so you always know what to lift
               next.
             </p>
@@ -29,8 +30,11 @@ export default function HeroSection() {
             <div id="waitlist" className="scroll-mt-24">
               <WaitlistForm />
             </div>
-            <p className={`mt-3 text-center sm:mt-4 sm:text-left ${typography.caption}`}>
-              Be among the first athletes helping shape the future of UFIT.
+            <p
+              className={`mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center sm:mt-4 sm:justify-start sm:text-left ${typography.caption}`}
+            >
+              <TestFlightLogo className="h-10 w-10 shrink-0 rounded-[9px]" />
+              <span>Now in TestFlight beta.</span>
             </p>
           </div>
 
