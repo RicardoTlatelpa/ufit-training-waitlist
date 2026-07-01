@@ -4,6 +4,7 @@ import { getSiteUrl, sendWaitlistEmail } from '@/lib/sendEmail';
 import { buildWaitlistEmail } from '@/lib/waitlistEmailTemplates';
 
 const TOKEN_TTL_HOURS = 48;
+const VERIFICATION_RESEND_COOLDOWN_MS = 15 * 60 * 1000;
 
 export type SubscribeResult =
   | { status: 'verification_sent' }
@@ -77,7 +78,7 @@ export async function subscribeToWaitlist(email: string): Promise<SubscribeResul
 
   const { data: existingData, error: fetchError } = await supabase
     .from('waitlist_signups')
-    .select('id, verified_at')
+    .select('id, verified_at, last_verification_sent_at')
     .eq('email', normalizedEmail)
     .maybeSingle();
 
@@ -85,11 +86,23 @@ export async function subscribeToWaitlist(email: string): Promise<SubscribeResul
     throw new Error(fetchError.message);
   }
 
-  const existing = existingData as Pick<WaitlistSignupRow, 'id' | 'verified_at'> | null;
+  const existing = existingData as Pick<
+    WaitlistSignupRow,
+    'id' | 'verified_at' | 'last_verification_sent_at'
+  > | null;
 
   if (existing?.verified_at) {
     return { status: 'already_verified' };
   }
+
+  if (existing?.last_verification_sent_at) {
+    const lastSentAt = new Date(existing.last_verification_sent_at).getTime();
+    if (Date.now() - lastSentAt < VERIFICATION_RESEND_COOLDOWN_MS) {
+      return { status: 'verification_sent' };
+    }
+  }
+
+  const sentAt = new Date().toISOString();
 
   if (existing) {
     const { error: updateError } = await supabase
@@ -97,6 +110,7 @@ export async function subscribeToWaitlist(email: string): Promise<SubscribeResul
       .update({
         verification_token: token,
         verification_token_expires_at: expiresAt,
+        last_verification_sent_at: sentAt,
       })
       .eq('id', existing.id);
 
@@ -108,6 +122,7 @@ export async function subscribeToWaitlist(email: string): Promise<SubscribeResul
       email: normalizedEmail,
       verification_token: token,
       verification_token_expires_at: expiresAt,
+      last_verification_sent_at: sentAt,
     });
 
     if (insertError) {
