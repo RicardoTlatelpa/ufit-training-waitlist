@@ -12,6 +12,7 @@ export type { WaitlistEmailAvailability };
 
 export const waitlistSchema = z.object({
   email: waitlistEmailFieldSchema,
+  company: z.string().optional(),
 });
 
 export const waitlistFormSchema = waitlistSchema.superRefine(async (data, ctx) => {
