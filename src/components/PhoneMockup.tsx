@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Badge from '@/components/ui/Badge';
+import TestFlightLogo from '@/components/TestFlightLogo';
 
 export default function PhoneMockup() {
   return (
@@ -49,9 +50,10 @@ export default function PhoneMockup() {
         </div>
       </div>
 
-      <div className="absolute -right-1 top-8 sm:-right-2 sm:top-10 lg:-right-4">
-        <Badge variant="info" className="px-2.5 py-0.5 text-[11px] shadow-sm sm:px-3 sm:py-1 sm:text-paragraph-02">
-          Coming Soon
+      <div className="absolute -right-12 top-8 sm:-right-16 sm:top-10 lg:-right-20">
+        <Badge variant="info" className="gap-1.5 px-2.5 py-0.5 text-[11px] shadow-sm sm:px-3 sm:py-1 sm:text-paragraph-02">
+          <TestFlightLogo className="h-3.5 w-3.5 shrink-0 rounded-[3px]" />
+          TestFlight Beta
         </Badge>
       </div>
     </div>
