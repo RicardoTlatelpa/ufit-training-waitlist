@@ -25,7 +25,7 @@ export default function FeaturesSection() {
       <Container>
         <SectionHeader
           title="Everything You Need to Progress"
-          subtitle="Built for athletes who train with intention—not random workouts."
+          subtitle="Built for athletes who train with intention, not random workouts."
           align="center"
         />
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
