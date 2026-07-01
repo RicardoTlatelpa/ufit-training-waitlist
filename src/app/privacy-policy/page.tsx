@@ -4,7 +4,7 @@ import { Card, Container } from '@/components/ui';
 import { typography } from '@/theme/typography';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — UFIT Training',
+  title: 'Privacy Policy | UFIT Training',
   description:
     'How UFIT Training collects, uses, stores, and protects your information.',
 };
