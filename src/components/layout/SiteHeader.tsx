@@ -18,11 +18,7 @@ export default function SiteHeader() {
             UFIT Training
           </span>
         </Link>
-        <Button
-          href="#waitlist"
-          variant="primary"
-          className="h-9 min-h-0 w-auto shrink-0 self-center px-4 py-0 text-[14px] leading-none sm:min-h-[44px] sm:h-auto sm:px-5 sm:py-3 sm:text-paragraph-01 sm:leading-paragraph-01"
-        >
+        <Button href="#waitlist" variant="primary" size="compact">
           <span className="sm:hidden">Join</span>
           <span className="hidden sm:inline">Join the Beta Waitlist</span>
         </Button>

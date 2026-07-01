@@ -1,6 +1,7 @@
 import { cn } from '@/lib/cn';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+export type ButtonSize = 'default' | 'compact';
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700',
@@ -16,9 +17,17 @@ const disabledClasses: Record<ButtonVariant, string> = {
   ghost: 'opacity-50 cursor-not-allowed',
 };
 
+const sizeClasses: Record<ButtonSize, string> = {
+  default:
+    'min-h-[48px] w-full rounded-lg px-5 py-3.5 sm:min-h-[44px] sm:w-auto sm:rounded-md sm:px-4',
+  compact:
+    'h-9 min-h-0 w-auto shrink-0 rounded-md px-4 py-0 text-[14px] leading-none sm:min-h-[44px] sm:h-auto sm:px-5 sm:py-3 sm:text-paragraph-01 sm:leading-paragraph-01',
+};
+
 type ButtonProps = {
   children: React.ReactNode;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
   type?: 'button' | 'submit' | 'reset';
@@ -30,6 +39,7 @@ type ButtonProps = {
 export default function Button({
   children,
   variant = 'primary',
+  size = 'default',
   disabled = false,
   loading = false,
   type = 'button',
@@ -39,7 +49,9 @@ export default function Button({
 }: ButtonProps) {
   const isDisabled = disabled || loading;
   const classes = cn(
-    'inline-flex min-h-[48px] w-full items-center justify-center rounded-lg px-5 py-3.5 font-body text-paragraph-01 font-bold leading-paragraph-01 transition-colors sm:min-h-[44px] sm:w-auto sm:rounded-md sm:px-4',
+    'inline-flex items-center justify-center font-body font-bold transition-colors',
+    size === 'default' && 'text-paragraph-01 leading-paragraph-01',
+    sizeClasses[size],
     isDisabled ? disabledClasses[variant] : variantClasses[variant],
     className,
   );
