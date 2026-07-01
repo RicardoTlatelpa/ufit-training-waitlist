@@ -4,7 +4,7 @@ import { Card, Container } from '@/components/ui';
 import { typography } from '@/theme/typography';
 
 export const metadata: Metadata = {
-  title: 'Waitlist Confirmed — UFIT Training',
+  title: 'Waitlist Confirmed | UFIT Training',
   description: 'Your email is confirmed on the UFIT Training beta waitlist.',
 };
 
