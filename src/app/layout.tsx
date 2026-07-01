@@ -8,16 +8,16 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? process.env.URL ?? 'http://localhost:3000',
   ),
-  title: 'UFIT Training — Train Smarter. Progress Every Workout.',
+  title: 'UFIT Training | Train Smarter. Progress Every Workout.',
   description:
-    'Build your own strength program, track every workout, and let UFIT automatically manage your progression so you always know what to lift next.',
+    'Build your own training program, track every workout, and let UFIT automatically manage your progression so you always know what to lift next.',
   icons: {
     icon: '/favicon.png',
   },
   openGraph: {
-    title: 'UFIT Training — Train Smarter. Progress Every Workout.',
+    title: 'UFIT Training | Train Smarter. Progress Every Workout.',
     description:
-      'Build your own strength program, track every workout, and let UFIT automatically manage your progression so you always know what to lift next.',
+      'Build your own training program, track every workout, and let UFIT automatically manage your progression so you always know what to lift next.',
     type: 'website',
     images: [{ url: '/images/icon.png', width: 512, height: 512, alt: 'UFIT Training' }],
   },
