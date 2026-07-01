@@ -1,9 +1,15 @@
 import { z } from 'zod';
+import disposableDomains from 'disposable-email-domains';
+
+const DISPOSABLE_DOMAIN_SET = new Set(disposableDomains as string[]);
+
+const MAX_EMAIL_LENGTH = 254;
 
 export const waitlistEmailFieldSchema = z
   .string()
   .trim()
   .min(1, 'Email is required')
+  .max(MAX_EMAIL_LENGTH, 'Email address is too long')
   .email('Enter a valid email address');
 
 export type WaitlistEmailAvailability =
@@ -19,7 +25,25 @@ export function normalizeWaitlistEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-export function validateWaitlistEmailFormat(email: string): WaitlistEmailFormatResult {
+function getEmailDomain(email: string): string | null {
+  const atIndex = email.lastIndexOf('@');
+  if (atIndex < 0) {
+    return null;
+  }
+
+  return email.slice(atIndex + 1);
+}
+
+export function isDisposableEmailDomain(email: string): boolean {
+  const domain = getEmailDomain(normalizeWaitlistEmail(email));
+  if (!domain) {
+    return false;
+  }
+
+  return DISPOSABLE_DOMAIN_SET.has(domain);
+}
+
+export function assertWaitlistEmailAllowed(email: string): WaitlistEmailFormatResult {
   const parsed = waitlistEmailFieldSchema.safeParse(email);
 
   if (!parsed.success) {
@@ -29,7 +53,20 @@ export function validateWaitlistEmailFormat(email: string): WaitlistEmailFormatR
     };
   }
 
-  return { ok: true, email: normalizeWaitlistEmail(parsed.data) };
+  const normalized = normalizeWaitlistEmail(parsed.data);
+
+  if (isDisposableEmailDomain(normalized)) {
+    return {
+      ok: false,
+      message: 'Please use a permanent email address.',
+    };
+  }
+
+  return { ok: true, email: normalized };
+}
+
+export function validateWaitlistEmailFormat(email: string): WaitlistEmailFormatResult {
+  return assertWaitlistEmailAllowed(email);
 }
 
 export function getWaitlistEmailAvailabilityMessage(
