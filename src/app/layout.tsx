@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   description:
     'Build your own training program, track every workout, and let UFIT automatically manage your progression so you always know what to lift next.',
   icons: {
-    icon: '/favicon.png',
+    icon: [{ url: '/favicon.png', sizes: '32x32', type: 'image/png' }],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
     title: 'UFIT Training | Train Smarter. Progress Every Workout.',
