@@ -15,7 +15,7 @@ export default function WhyUfitSection() {
       <Container>
         <SectionHeader
           title="Why UFIT?"
-          subtitle="Built for people who care about consistent progress—not random workouts."
+          subtitle="Built for people who care about consistent progress, not random workouts."
         />
         <div className="mx-auto max-w-2xl">
           <p className={typography.overline}>Perfect for</p>
