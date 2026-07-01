@@ -14,7 +14,7 @@ export default function BetaProgramSection() {
         <div className="mx-auto max-w-2xl text-center">
           <SectionHeader
             title="Beta Program"
-            subtitle="We're inviting a limited number of early users to help shape the future of UFIT."
+            subtitle="UFIT is currently being tested on TestFlight. Join the waitlist for early access, and stay tuned for the App Store release."
             align="center"
           />
           <Card className="text-left">
