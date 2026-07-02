@@ -111,6 +111,7 @@ export async function POST(request: Request) {
         {
           error:
             'Your signup was saved, but we could not send the confirmation email. Please try again in a few minutes.',
+          reason: error.message,
         },
         { status: 503 },
       );
