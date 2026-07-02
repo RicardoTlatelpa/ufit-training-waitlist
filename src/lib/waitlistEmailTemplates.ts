@@ -1,4 +1,4 @@
-import { getSiteUrl } from '@/lib/sendEmail';
+import { getEmailSiteUrl } from '@/lib/sendEmail';
 import {
   emailBody,
   emailButton,
@@ -21,7 +21,7 @@ export function buildWaitlistEmail(
   kind: WaitlistEmailKind,
   options: { verifyUrl?: string; tokenTtlHours?: number; siteUrl?: string } = {},
 ): WaitlistEmailContent {
-  const siteUrl = options.siteUrl ?? getSiteUrl();
+  const siteUrl = options.siteUrl ?? getEmailSiteUrl();
   const tokenTtlHours = options.tokenTtlHours ?? 48;
 
   if (kind === 'verification') {
