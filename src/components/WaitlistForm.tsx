@@ -160,10 +160,14 @@ export default function WaitlistForm({
         status?: SubmitStatus;
         message?: string;
         error?: string;
+        reason?: string;
       };
 
       if (!response.ok) {
-        setSubmitError(payload.error ?? 'Unable to submit your signup. Please try again.');
+        const detail = payload.reason ? ` ${payload.reason}` : '';
+        setSubmitError(
+          (payload.error ?? 'Unable to submit your signup. Please try again.') + detail,
+        );
         resetTurnstile();
         return;
       }
