@@ -93,6 +93,10 @@ export async function fetchWaitlistEmailAvailability(
     `/api/waitlist/check?email=${encodeURIComponent(format.email)}`,
   );
 
+  if (response.status === 429) {
+    throw new Error('Too many requests. Try again later.');
+  }
+
   if (!response.ok) {
     throw new Error('Unable to validate email right now.');
   }
@@ -121,7 +125,11 @@ export async function validateWaitlistEmailInput(email: string): Promise<true | 
     }
 
     return getWaitlistEmailAvailabilityMessage(status);
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Too many requests')) {
+      return error.message;
+    }
+
     return 'Unable to validate email right now. Please try again.';
   }
 }
