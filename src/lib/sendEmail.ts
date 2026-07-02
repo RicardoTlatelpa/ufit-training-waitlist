@@ -40,8 +40,10 @@ export function getEmailSiteUrl(): string {
 }
 
 export function getWaitlistFromEmail(): string {
-  if (process.env.WAITLIST_FROM_EMAIL) {
-    return process.env.WAITLIST_FROM_EMAIL;
+  const configured = process.env.WAITLIST_FROM_EMAIL?.trim().replace(/^["']|["']$/g, '');
+
+  if (configured) {
+    return configured;
   }
 
   if (process.env.SMTP_USER) {
@@ -49,6 +51,12 @@ export function getWaitlistFromEmail(): string {
   }
 
   return 'UFIT Training <onboarding@resend.dev>';
+}
+
+export function getWaitlistFromEmailAddress(): string | null {
+  const from = getWaitlistFromEmail();
+  const match = from.match(/<([^>]+)>/);
+  return match?.[1] ?? (from.includes('@') ? from : null);
 }
 
 type SendEmailInput = {
@@ -86,8 +94,10 @@ function getEmailProvider(): 'resend' | 'smtp' {
 
 async function sendViaResend(input: SendEmailInput): Promise<void> {
   const resend = getResendClient();
+  const from = getWaitlistFromEmail();
+
   const { error } = await resend.emails.send({
-    from: getWaitlistFromEmail(),
+    from,
     to: input.to,
     subject: input.subject,
     html: input.html,
@@ -95,7 +105,11 @@ async function sendViaResend(input: SendEmailInput): Promise<void> {
   });
 
   if (error) {
-    console.error('[waitlist] resend send failed', error);
+    console.error('[waitlist] resend send failed', {
+      from,
+      to: input.to,
+      error,
+    });
     throw new Error(error.message);
   }
 }
