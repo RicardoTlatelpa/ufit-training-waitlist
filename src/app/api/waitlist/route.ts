@@ -14,6 +14,7 @@ import {
   isWaitlistMigrationMissingError,
   WAITLIST_MIGRATION_ERROR_MESSAGE,
 } from '@/lib/waitlistMigration';
+import { WaitlistEmailDeliveryError } from '@/lib/waitlistErrors';
 
 const waitlistSubscribeBodySchema = z.object({
   email: z.string(),
@@ -78,7 +79,6 @@ export async function POST(request: Request) {
     const emailStatus = await getWaitlistEmailStatus(emailCheck.email);
 
     if (emailStatus === 'already_verified') {
-      await logWaitlistRequest('subscribe', clientIp, emailCheck.email);
       return NextResponse.json({
         status: 'already_verified',
         message: 'This email is already confirmed on the waitlist.',
@@ -104,6 +104,16 @@ export async function POST(request: Request) {
 
     if (isWaitlistMigrationMissingError(error)) {
       return NextResponse.json({ error: WAITLIST_MIGRATION_ERROR_MESSAGE }, { status: 503 });
+    }
+
+    if (error instanceof WaitlistEmailDeliveryError) {
+      return NextResponse.json(
+        {
+          error:
+            'Your signup was saved, but we could not send the confirmation email. Please try again in a few minutes.',
+        },
+        { status: 503 },
+      );
     }
 
     return NextResponse.json(
