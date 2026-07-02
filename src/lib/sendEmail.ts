@@ -18,7 +18,9 @@ export function getEmailSiteUrl(): string {
   const url =
     process.env.WAITLIST_SITE_URL ??
     process.env.NEXT_PUBLIC_SITE_URL ??
-    process.env.URL;
+    process.env.URL ??
+    process.env.DEPLOY_PRIME_URL ??
+    process.env.DEPLOY_URL;
 
   if (!url) {
     if (process.env.NODE_ENV === 'production') {
@@ -93,6 +95,7 @@ async function sendViaResend(input: SendEmailInput): Promise<void> {
   });
 
   if (error) {
+    console.error('[waitlist] resend send failed', error);
     throw new Error(error.message);
   }
 }
