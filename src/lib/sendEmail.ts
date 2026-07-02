@@ -1,12 +1,40 @@
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 
+function normalizeSiteUrl(url: string): string {
+  return url.replace(/\/$/, '');
+}
+
 export function getSiteUrl(): string {
-  return (
+  return normalizeSiteUrl(
     process.env.NEXT_PUBLIC_SITE_URL ??
-    process.env.URL ??
-    'http://localhost:3000'
-  ).replace(/\/$/, '');
+      process.env.URL ??
+      'http://localhost:3000',
+  );
+}
+
+/** Public base URL for links and images in outbound waitlist emails. */
+export function getEmailSiteUrl(): string {
+  const url =
+    process.env.WAITLIST_SITE_URL ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.URL;
+
+  if (!url) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'Missing WAITLIST_SITE_URL, NEXT_PUBLIC_SITE_URL, or URL for waitlist email links',
+      );
+    }
+
+    console.warn(
+      '[email] No site URL configured; email links and images will use http://localhost:3000. ' +
+        'Set NEXT_PUBLIC_SITE_URL or WAITLIST_SITE_URL in .env.local when testing emails.',
+    );
+    return 'http://localhost:3000';
+  }
+
+  return normalizeSiteUrl(url);
 }
 
 export function getWaitlistFromEmail(): string {
