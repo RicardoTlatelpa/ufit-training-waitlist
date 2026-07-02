@@ -1,3 +1,14 @@
+import { getSiteUrl } from '@/lib/sendEmail';
+import {
+  emailBody,
+  emailButton,
+  emailHeading,
+  emailLink,
+  emailMuted,
+  emailOverline,
+  wrapEmailLayout,
+} from '@/lib/waitlistEmailLayout';
+
 export type WaitlistEmailKind = 'verification' | 'welcome';
 
 type WaitlistEmailContent = {
@@ -8,31 +19,33 @@ type WaitlistEmailContent = {
 
 export function buildWaitlistEmail(
   kind: WaitlistEmailKind,
-  options: { verifyUrl?: string; tokenTtlHours?: number } = {},
+  options: { verifyUrl?: string; tokenTtlHours?: number; siteUrl?: string } = {},
 ): WaitlistEmailContent {
+  const siteUrl = options.siteUrl ?? getSiteUrl();
   const tokenTtlHours = options.tokenTtlHours ?? 48;
 
   if (kind === 'verification') {
     const verifyUrl = options.verifyUrl ?? '';
+    const content = [
+      emailOverline('Beta waitlist'),
+      emailHeading('Confirm your waitlist signup'),
+      emailBody(
+        'Thanks for your interest in the UFIT Training beta. Confirm your email address to join the waitlist.',
+      ),
+      emailButton(verifyUrl, 'Confirm email address'),
+      emailBody('Or copy and paste this link into your browser:', 8),
+      `<p style="margin:0 0 24px;">${emailLink(verifyUrl, verifyUrl)}</p>`,
+      emailMuted(
+        `This link expires in ${tokenTtlHours} hours. If you did not request this, you can ignore this email.`,
+      ),
+    ].join('');
+
     return {
       subject: 'Confirm your UFIT Training beta waitlist signup',
-      html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #242930; max-width: 560px;">
-          <p style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #79879a; margin: 0 0 12px;">UFIT Training</p>
-          <h1 style="font-size: 28px; line-height: 1.2; color: #00368d; margin: 0 0 16px;">Confirm your waitlist signup</h1>
-          <p style="margin: 0 0 16px;">Thanks for your interest in the UFIT Training beta. Confirm your email address to join the waitlist.</p>
-          <p style="margin: 0 0 24px;">
-            <a href="${verifyUrl}" style="display: inline-block; background: #3a86ff; color: #ffffff; text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 6px;">
-              Confirm email address
-            </a>
-          </p>
-          <p style="margin: 0 0 16px; color: #5b6879; font-size: 14px;">Or copy and paste this link into your browser:</p>
-          <p style="margin: 0 0 24px; word-break: break-all; font-size: 14px;">
-            <a href="${verifyUrl}" style="color: #005beb;">${verifyUrl}</a>
-          </p>
-          <p style="margin: 0; color: #79879a; font-size: 12px;">This link expires in ${tokenTtlHours} hours. If you did not request this, you can ignore this email.</p>
-        </div>
-      `,
+      html: wrapEmailLayout(content, {
+        siteUrl,
+        preheader: 'Confirm your email to join the UFIT Training beta waitlist.',
+      }),
       text: [
         'Confirm your UFIT Training beta waitlist signup',
         '',
@@ -44,16 +57,23 @@ export function buildWaitlistEmail(
     };
   }
 
+  const content = [
+    emailOverline('Beta waitlist'),
+    emailHeading('You are on the list'),
+    emailBody(
+      'Your email is confirmed. You are now on the UFIT Training beta waitlist.',
+    ),
+    emailMuted(
+      'We will reach out when beta spots become available. Thanks for helping shape the future of UFIT.',
+    ),
+  ].join('');
+
   return {
     subject: 'You are confirmed on the UFIT Training beta waitlist',
-    html: `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #242930; max-width: 560px;">
-        <p style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #79879a; margin: 0 0 12px;">UFIT Training</p>
-        <h1 style="font-size: 28px; line-height: 1.2; color: #00368d; margin: 0 0 16px;">You are on the list</h1>
-        <p style="margin: 0 0 16px;">Your email is confirmed. You are now on the UFIT Training beta waitlist.</p>
-        <p style="margin: 0; color: #5b6879;">We will reach out when beta spots become available. Thanks for helping shape the future of UFIT.</p>
-      </div>
-    `,
+    html: wrapEmailLayout(content, {
+      siteUrl,
+      preheader: 'You are confirmed on the UFIT Training beta waitlist.',
+    }),
     text: [
       'You are confirmed on the UFIT Training beta waitlist.',
       '',
