@@ -162,7 +162,7 @@ Copy [`.env.example`](./.env.example) to `.env.local` for local dev, and add the
 | `SMTP_USER` + `SMTP_PASS` | Gmail app password (Option A) |
 | `RESEND_API_KEY` | Resend API key (Option B) |
 | `WAITLIST_FROM_EMAIL` | Display name + sender address |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (public) |
+| `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (public — use a plain Netlify env var, not secret scope) |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key (server only) |
 
 Redeploy after adding env vars on Netlify.
@@ -184,7 +184,7 @@ The waitlist uses layered defenses:
 
 1. [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Turnstile** → **Add site**
 2. Hostnames: your production domain (e.g. `ufittraining.com`) and `localhost`
-3. Add `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` to Netlify env vars
+3. Add `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` to Netlify env vars
 4. Redeploy
 
 In local dev without Turnstile keys, verification is skipped automatically (do not deploy to production without keys).

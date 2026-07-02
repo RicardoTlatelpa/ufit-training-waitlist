@@ -4,7 +4,12 @@ type TurnstileVerifyResponse = {
 };
 
 export function getTurnstileSiteKey(): string {
-  return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
+  // Site key is public (served to the browser via /api/waitlist/config). Keep server-only.
+  return (
+    process.env.TURNSTILE_SITE_KEY ??
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
+    ''
+  );
 }
 
 export function isTurnstileConfigured(): boolean {
