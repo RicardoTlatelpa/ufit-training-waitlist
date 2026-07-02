@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto';
 import { getSupabaseAdmin, type WaitlistSignupRow } from '@/lib/supabase';
 import { getEmailSiteUrl, sendWaitlistEmail } from '@/lib/sendEmail';
 import { buildWaitlistEmail } from '@/lib/waitlistEmailTemplates';
+import { WaitlistEmailDeliveryError } from '@/lib/waitlistErrors';
 
 const TOKEN_TTL_HOURS = 48;
 const VERIFICATION_RESEND_COOLDOWN_MS = 15 * 60 * 1000;
@@ -103,6 +104,7 @@ export async function subscribeToWaitlist(email: string): Promise<SubscribeResul
   }
 
   const sentAt = new Date().toISOString();
+  let signupId: string;
 
   if (existing) {
     const { error: updateError } = await supabase
@@ -110,27 +112,51 @@ export async function subscribeToWaitlist(email: string): Promise<SubscribeResul
       .update({
         verification_token: token,
         verification_token_expires_at: expiresAt,
-        last_verification_sent_at: sentAt,
       })
       .eq('id', existing.id);
 
     if (updateError) {
       throw new Error(updateError.message);
     }
+
+    signupId = existing.id;
   } else {
-    const { error: insertError } = await supabase.from('waitlist_signups').insert({
-      email: normalizedEmail,
-      verification_token: token,
-      verification_token_expires_at: expiresAt,
-      last_verification_sent_at: sentAt,
-    });
+    const { data: insertedData, error: insertError } = await supabase
+      .from('waitlist_signups')
+      .insert({
+        email: normalizedEmail,
+        verification_token: token,
+        verification_token_expires_at: expiresAt,
+      })
+      .select('id')
+      .single();
 
     if (insertError) {
       throw new Error(insertError.message);
     }
+
+    signupId = (insertedData as Pick<WaitlistSignupRow, 'id'>).id;
   }
 
-  await sendVerificationEmail(normalizedEmail, token);
+  try {
+    await sendVerificationEmail(normalizedEmail, token);
+  } catch (error) {
+    console.error('[waitlist] verification email failed', error);
+    throw new WaitlistEmailDeliveryError(
+      error instanceof Error ? error.message : 'Failed to send verification email',
+      { cause: error },
+    );
+  }
+
+  const { error: sentAtError } = await supabase
+    .from('waitlist_signups')
+    .update({ last_verification_sent_at: sentAt })
+    .eq('id', signupId);
+
+  if (sentAtError) {
+    console.error('[waitlist] failed to record verification send time', sentAtError);
+  }
+
   return { status: 'verification_sent' };
 }
 
