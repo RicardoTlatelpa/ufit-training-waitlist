@@ -101,7 +101,7 @@ export function emailButton(href: string, label: string): string {
 
 export function wrapEmailLayout(content: string, options: EmailLayoutOptions): string {
   const { siteUrl, preheader } = options;
-  const logoUrl = `${siteUrl}/favicon.png`;
+  const logoUrl = `${siteUrl}/images/icon.png`;
   const siteLabel = siteUrl.replace(/^https?:\/\//, '');
 
   const preheaderHtml = preheader
@@ -129,7 +129,7 @@ export function wrapEmailLayout(content: string, options: EmailLayoutOptions): s
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td style="padding-right:10px;vertical-align:middle;">
-                      <img src="${logoUrl}" width="32" height="32" alt="UFIT Training" style="display:block;border:0;border-radius:8px;" />
+                      <img src="${logoUrl}" width="36" height="36" alt="UFIT Training" style="display:block;border:0;border-radius:8px;" />
                     </td>
                     <td style="vertical-align:middle;${font({
                       family: emailFonts.heading,
