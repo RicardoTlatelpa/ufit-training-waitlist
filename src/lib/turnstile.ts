@@ -3,17 +3,22 @@ type TurnstileVerifyResponse = {
   'error-codes'?: string[];
 };
 
+export function getTurnstileSiteKey(): string {
+  return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
+}
+
+export function isTurnstileConfigured(): boolean {
+  return Boolean(getTurnstileSiteKey() && process.env.TURNSTILE_SECRET_KEY);
+}
+
 export async function verifyTurnstileToken(token: string, ip?: string): Promise<boolean> {
-  const secretKey = process.env.TURNSTILE_SECRET_KEY;
-
-  if (!secretKey) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('[turnstile] TURNSTILE_SECRET_KEY is not configured');
-      return false;
-    }
-
-    console.warn('[turnstile] TURNSTILE_SECRET_KEY missing; skipping verification in dev');
+  if (!isTurnstileConfigured()) {
     return true;
+  }
+
+  const secretKey = process.env.TURNSTILE_SECRET_KEY;
+  if (!secretKey) {
+    return false;
   }
 
   const body = new URLSearchParams({
@@ -43,8 +48,4 @@ export async function verifyTurnstileToken(token: string, ip?: string): Promise<
   }
 
   return payload.success;
-}
-
-export function isTurnstileConfigured(): boolean {
-  return Boolean(process.env.TURNSTILE_SECRET_KEY && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 }
