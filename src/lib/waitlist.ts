@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import { getSupabaseAdmin, type WaitlistSignupRow } from '@/lib/supabase';
-import { getSiteUrl, sendWaitlistEmail } from '@/lib/sendEmail';
+import { getEmailSiteUrl, sendWaitlistEmail } from '@/lib/sendEmail';
 import { buildWaitlistEmail } from '@/lib/waitlistEmailTemplates';
 
 const TOKEN_TTL_HOURS = 48;
@@ -55,7 +55,7 @@ function verificationExpiresAt(): string {
 }
 
 async function sendVerificationEmail(email: string, token: string): Promise<void> {
-  const siteUrl = getSiteUrl();
+  const siteUrl = getEmailSiteUrl();
   const verifyUrl = `${siteUrl}/api/waitlist/verify?token=${encodeURIComponent(token)}`;
   const content = buildWaitlistEmail('verification', {
     verifyUrl,
