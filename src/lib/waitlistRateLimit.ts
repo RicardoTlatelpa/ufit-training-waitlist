@@ -7,12 +7,12 @@ const RATE_LIMITS: Record<
   { maxRequests: number; windowMs: number; emailMaxRequests?: number }
 > = {
   subscribe: {
-    maxRequests: 5,
+    maxRequests: 15,
     windowMs: 60 * 60 * 1000,
-    emailMaxRequests: 3,
+    emailMaxRequests: 8,
   },
   check: {
-    maxRequests: 30,
+    maxRequests: 100,
     windowMs: 60 * 60 * 1000,
   },
 };
@@ -56,7 +56,8 @@ export async function checkWaitlistRateLimit(
     return { allowed: true };
   }
 
-  if ((ipCount ?? 0) >= config.maxRequests) {
+  // Avoid one shared bucket when IP detection fails on the edge.
+  if (ip !== 'unknown' && (ipCount ?? 0) >= config.maxRequests) {
     return { allowed: false, message: 'Too many requests. Try again later.' };
   }
 
