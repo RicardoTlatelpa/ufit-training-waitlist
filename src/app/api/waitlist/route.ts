@@ -9,11 +9,15 @@ import {
   getClientIp,
   logWaitlistRequest,
 } from '@/lib/waitlistRateLimit';
-import { verifyTurnstileToken } from '@/lib/turnstile';
+import { verifyTurnstileToken, isTurnstileConfigured } from '@/lib/turnstile';
+import {
+  isWaitlistMigrationMissingError,
+  WAITLIST_MIGRATION_ERROR_MESSAGE,
+} from '@/lib/waitlistMigration';
 
 const waitlistSubscribeBodySchema = z.object({
   email: z.string(),
-  turnstileToken: z.string().min(1, 'Security verification is required'),
+  turnstileToken: z.string().optional(),
   company: z.string().optional(),
 });
 
@@ -53,7 +57,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: rateLimit.message }, { status: 429 });
     }
 
-    const turnstileValid = await verifyTurnstileToken(parsed.data.turnstileToken, clientIp);
+    const turnstileValid = isTurnstileConfigured()
+      ? await verifyTurnstileToken(parsed.data.turnstileToken ?? '', clientIp)
+      : true;
+
+    if (isTurnstileConfigured() && !parsed.data.turnstileToken) {
+      return NextResponse.json(
+        { error: 'Security verification is required. Please complete the check and try again.' },
+        { status: 400 },
+      );
+    }
 
     if (!turnstileValid) {
       return NextResponse.json(
@@ -88,6 +101,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('[waitlist] subscribe failed', error);
+
+    if (isWaitlistMigrationMissingError(error)) {
+      return NextResponse.json({ error: WAITLIST_MIGRATION_ERROR_MESSAGE }, { status: 503 });
+    }
+
     return NextResponse.json(
       { error: 'Unable to process your signup right now. Please try again shortly.' },
       { status: 500 },
