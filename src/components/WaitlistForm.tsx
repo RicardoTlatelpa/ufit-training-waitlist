@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
@@ -15,7 +15,10 @@ type WaitlistFormProps = {
 
 type SubmitStatus = 'verification_sent' | 'already_verified';
 
-const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
+type WaitlistConfig = {
+  turnstileSiteKey: string;
+  turnstileEnabled: boolean;
+};
 
 export default function WaitlistForm({
   className,
@@ -26,14 +29,40 @@ export default function WaitlistForm({
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [turnstileToken, setTurnstileToken] = useState(
-    turnstileSiteKey ? '' : 'dev-bypass',
-  );
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [config, setConfig] = useState<WaitlistConfig | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadConfig() {
+      try {
+        const response = await fetch('/api/waitlist/config');
+        const payload = (await response.json()) as WaitlistConfig;
+        if (cancelled) return;
+
+        setConfig(payload);
+        setTurnstileToken(payload.turnstileEnabled ? '' : 'dev-bypass');
+      } catch {
+        if (cancelled) return;
+        setConfig({ turnstileSiteKey: '', turnstileEnabled: false });
+        setTurnstileToken('dev-bypass');
+      }
+    }
+
+    void loadConfig();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    watch,
+    formState: { errors },
   } = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistFormSchema),
     mode: 'onBlur',
@@ -41,7 +70,18 @@ export default function WaitlistForm({
     defaultValues: { email: '', company: '' },
   });
 
-  const canSubmit = isValid && Boolean(turnstileToken);
+  const emailValue = watch('email');
+  const turnstileRequired = Boolean(config?.turnstileEnabled);
+  const turnstileReady = !turnstileRequired || Boolean(turnstileToken);
+  const configLoaded = config !== null;
+  const canSubmit =
+    configLoaded && Boolean(emailValue.trim()) && turnstileReady && !submitting;
+
+  const resetTurnstile = () => {
+    turnstileRef.current?.reset();
+    setTurnstileToken(config?.turnstileEnabled ? '' : 'dev-bypass');
+    setTurnstileError(null);
+  };
 
   const onSubmit = async (data: WaitlistFormValues) => {
     setSubmitting(true);
@@ -54,7 +94,7 @@ export default function WaitlistForm({
         body: JSON.stringify({
           email: data.email,
           company: data.company,
-          turnstileToken,
+          turnstileToken: turnstileToken || undefined,
         }),
       });
 
@@ -66,16 +106,14 @@ export default function WaitlistForm({
 
       if (!response.ok) {
         setSubmitError(payload.error ?? 'Unable to submit your signup. Please try again.');
-        turnstileRef.current?.reset();
-        setTurnstileToken(turnstileSiteKey ? '' : 'dev-bypass');
+        resetTurnstile();
         return;
       }
 
       setSubmitStatus(payload.status ?? 'verification_sent');
     } catch {
       setSubmitError('Unable to submit your signup. Please try again.');
-      turnstileRef.current?.reset();
-      setTurnstileToken(turnstileSiteKey ? '' : 'dev-bypass');
+      resetTurnstile();
     } finally {
       setSubmitting(false);
     }
@@ -164,15 +202,36 @@ export default function WaitlistForm({
           <p className={cn('mt-1', typography.caption, 'text-error-500')}>{submitError}</p>
         ) : null}
       </div>
-      {turnstileSiteKey ? (
-        <Turnstile
-          ref={turnstileRef}
-          siteKey={turnstileSiteKey}
-          onSuccess={setTurnstileToken}
-          onExpire={() => setTurnstileToken('')}
-          onError={() => setTurnstileToken('')}
-          options={{ theme: 'light', size: 'flexible' }}
-        />
+      {!configLoaded ? (
+        <p className={cn(typography.caption, 'text-gray-500')}>Loading form…</p>
+      ) : null}
+      {configLoaded && config.turnstileSiteKey ? (
+        <div className="space-y-2">
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={config.turnstileSiteKey}
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+              setTurnstileError(null);
+            }}
+            onExpire={() => setTurnstileToken('')}
+            onError={() => {
+              setTurnstileToken('');
+              setTurnstileError(
+                'Security check failed to load. Try refreshing the page or disabling ad blockers.',
+              );
+            }}
+            options={{ theme: 'light', size: 'normal' }}
+          />
+          {!turnstileToken && !turnstileError ? (
+            <p className={cn(typography.caption, 'text-gray-500')}>
+              Complete the security check above to enable signup.
+            </p>
+          ) : null}
+          {turnstileError ? (
+            <p className={cn(typography.caption, 'text-error-500')}>{turnstileError}</p>
+          ) : null}
+        </div>
       ) : null}
       <Button
         type="submit"
