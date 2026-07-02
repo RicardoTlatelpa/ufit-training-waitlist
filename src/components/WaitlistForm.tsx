@@ -4,7 +4,12 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { waitlistFormSchema, type WaitlistFormValues } from '@/lib/validation';
+import {
+  fetchWaitlistEmailAvailability,
+  getWaitlistEmailAvailabilityMessage,
+  validateWaitlistEmailFormat,
+} from '@/lib/waitlistEmailValidation';
+import { waitlistSchema, type WaitlistFormValues } from '@/lib/validation';
 import { typography } from '@/theme/typography';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
@@ -26,10 +31,13 @@ export default function WaitlistForm({
   const emailId = useId();
   const companyId = useId();
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const emailCheckRequestId = useRef(0);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [availabilityHint, setAvailabilityHint] = useState<string | null>(null);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [config, setConfig] = useState<WaitlistConfig | null>(null);
   const [turnstileToken, setTurnstileToken] = useState('');
 
@@ -62,11 +70,13 @@ export default function WaitlistForm({
     register,
     handleSubmit,
     watch,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<WaitlistFormValues>({
-    resolver: zodResolver(waitlistFormSchema),
+    resolver: zodResolver(waitlistSchema),
     mode: 'onBlur',
-    reValidateMode: 'onChange',
+    reValidateMode: 'onBlur',
     defaultValues: { email: '', company: '' },
   });
 
@@ -81,6 +91,54 @@ export default function WaitlistForm({
     turnstileRef.current?.reset();
     setTurnstileToken(config?.turnstileEnabled ? '' : 'dev-bypass');
     setTurnstileError(null);
+  };
+
+  const checkEmailAvailabilityOnBlur = async (email: string) => {
+    const format = validateWaitlistEmailFormat(email);
+    setAvailabilityHint(null);
+
+    if (!format.ok) {
+      return;
+    }
+
+    const requestId = ++emailCheckRequestId.current;
+    setCheckingAvailability(true);
+
+    try {
+      const status = await fetchWaitlistEmailAvailability(format.email);
+
+      if (requestId !== emailCheckRequestId.current) {
+        return;
+      }
+
+      if (status === 'invalid_format') {
+        return;
+      }
+
+      if (status === 'available') {
+        setAvailabilityHint(null);
+        clearErrors('email');
+        return;
+      }
+
+      const message = getWaitlistEmailAvailabilityMessage(status);
+      setAvailabilityHint(message);
+      setError('email', { type: 'manual', message });
+    } catch (error) {
+      if (requestId !== emailCheckRequestId.current) {
+        return;
+      }
+
+      const message =
+        error instanceof Error && error.message.includes('Too many requests')
+          ? error.message
+          : null;
+      setAvailabilityHint(message);
+    } finally {
+      if (requestId === emailCheckRequestId.current) {
+        setCheckingAvailability(false);
+      }
+    }
   };
 
   const onSubmit = async (data: WaitlistFormValues) => {
@@ -118,6 +176,8 @@ export default function WaitlistForm({
       setSubmitting(false);
     }
   };
+
+  const emailField = register('email');
 
   if (submitStatus === 'verification_sent') {
     return (
@@ -191,12 +251,28 @@ export default function WaitlistForm({
             'focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200',
             errors.email && 'border-error-500 focus:border-error-500 focus:ring-error-100',
           )}
-          {...register('email')}
+          name={emailField.name}
+          ref={emailField.ref}
+          onChange={(event) => {
+            setAvailabilityHint(null);
+            clearErrors('email');
+            void emailField.onChange(event);
+          }}
+          onBlur={(event) => {
+            void emailField.onBlur(event);
+            void checkEmailAvailabilityOnBlur(event.target.value);
+          }}
         />
         {errors.email ? (
           <p className={cn('mt-1', typography.caption, 'text-error-500')}>
             {errors.email.message}
           </p>
+        ) : checkingAvailability ? (
+          <p className={cn('mt-1', typography.caption, 'text-gray-500')}>
+            Checking email…
+          </p>
+        ) : availabilityHint ? (
+          <p className={cn('mt-1', typography.caption, 'text-error-500')}>{availabilityHint}</p>
         ) : null}
         {submitError ? (
           <p className={cn('mt-1', typography.caption, 'text-error-500')}>{submitError}</p>
